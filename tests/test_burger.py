@@ -55,3 +55,24 @@ class TestBurger:
         burger.add_ingredient(data.available_ingredients()[2])
         expected_result = '''(==== red bun ====)\n= sauce hot sauce =\n= sauce sour cream =\n= sauce chili sauce =\n(==== red bun ====)\n\nPrice: 1200'''
         assert burger.get_receipt() == expected_result
+
+    # Проверка метода move_ingredient
+    def test_move_ingredient(self):
+        burger = Burger()
+        mock_ingredient_one = Mock()
+        mock_ingredient_one.get_price.return_value = 100
+        mock_ingredient_one.get_name.return_value = 'cutlet'
+        mock_ingredient_one.get_type.return_value = INGREDIENT_TYPE_FILLING
+        burger.add_ingredient(mock_ingredient_one)
+
+        mock_ingredient_second = Mock()
+        mock_ingredient_second.get_price.return_value = 300
+        mock_ingredient_second.get_name.return_value = 'sausage'
+        mock_ingredient_second.get_type.return_value = INGREDIENT_TYPE_FILLING
+        burger.add_ingredient(mock_ingredient_second)
+
+        burger.move_ingredient(0, 1)
+
+        assert len(burger.ingredients)
+        assert burger.ingredients[0] == mock_ingredient_second
+        assert burger.ingredients[1] == mock_ingredient_one
