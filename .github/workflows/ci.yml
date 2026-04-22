@@ -1,4 +1,4 @@
-name: Run tests and publish report
+name: Run tests and publish coverage report
 
 on:
   schedule:
@@ -12,7 +12,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write   # нужно для публикации на gh-pages
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -20,28 +20,14 @@ jobs:
         with:
           python-version: '3.x'
       - name: Install dependencies
-        run: pip install pytest allure-pytest
-      - name: Run tests
-        run: pytest --alluredir=allure-results
-      - name: Load test report history
-        uses: actions/checkout@v4
-        if: always()
-        continue-on-error: true
-        with:
-          ref: gh-pages
-          path: gh-pages
-      - name: Build test report
-        uses: simple-elf/allure-report-action@master
-        if: always()
-        with:
-          gh_pages: gh-pages
-          allure_history: allure-history
-          allure_results: allure-results
-      - name: Publish test report
+        run: pip install pytest pytest-cov
+      - name: Run tests with coverage
+        run: pytest --cov=. --cov-report=html   # генерирует папку htmlcov/
+      - name: Deploy coverage report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
-        if: always()
         with:
           personal_token: ${{ secrets.GH_PAGES_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: allure-history
-          force_orphan: false
+          publish_dir: ./htmlcov
+          force_orphan: true
+          keep_files: false
